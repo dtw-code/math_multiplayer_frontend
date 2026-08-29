@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:math_multiplayer/screens/auth_gate.dart';
+import 'package:math_multiplayer/services/socket_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -8,6 +9,10 @@ void main() async {
     url: "https://lurowbxeloazbqalrrrt.supabase.co",
     publishableKey: "sb_publishable_B1quRfcoSdoScqYUaehHbQ_96Fz87Kp",
   );
+
+  // Connect to the game server
+  SocketService().connect();
+
   runApp(const MyApp());
 }
 
