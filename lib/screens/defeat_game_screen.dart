@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class DefeatScreen extends StatelessWidget {
-  const DefeatScreen({Key? key}) : super(key: key);
+  const DefeatScreen({
+    super.key,
+    required this.myScore,
+    required this.opponentScore,
+  });
+  final int myScore;
+  final int opponentScore;
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +48,15 @@ class DefeatScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildScoreCard('YOU', '20'),
-                    _buildScoreCard('BOT', '10'),
+                    _buildScoreCard(title: 'YOU', score: '$myScore'),
+                    _buildScoreCard(title: 'OPPONENT', score: '$opponentScore'),
                   ],
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () =>
+                      Navigator.popUntil(context, (route) => route.isFirst),
+                  child: const Text('BACK TO HOME'),
                 ),
               ],
             ),
@@ -54,7 +66,7 @@ class DefeatScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScoreCard(String title, String score) {
+  Widget _buildScoreCard({required String title, required String score}) {
     return Container(
       width: 100,
       height: 120,

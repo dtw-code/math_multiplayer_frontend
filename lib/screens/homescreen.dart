@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:math_multiplayer/services/auth_service.dart';
-import 'package:math_multiplayer/screens/match_screen.dart';
-import 'package:math_multiplayer/screens/victory_game_screen.dart';
+import 'package:math_multiplayer/screens/loading_screen.dart';
+import 'package:math_multiplayer/services/game_service.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -90,11 +90,11 @@ class HomePage extends StatelessWidget {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(32),
                       onTap: () {
+                        GameService().joinQueue();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const VictoryScreen(), //-->change to loading screen
+                            builder: (context) => const LoadingScreen(),
                           ),
                         );
                       },

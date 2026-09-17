@@ -1,4 +1,5 @@
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:math_multiplayer/config/app_config.dart';
 
 /// Singleton service that manages the Socket.IO connection to the game server.
 ///
@@ -31,8 +32,6 @@ class SocketService {
   // iOS simulator     → http://localhost:3000
   // Physical device   → http://<your-PC-local-IP>:3000
   // Web / Desktop     → http://localhost:3000
-  static const String _serverUrl = 'http://10.0.2.2:3000';
-
   // ---------------------------------------------------------------------------
   // Connection
   // ---------------------------------------------------------------------------
@@ -41,7 +40,7 @@ class SocketService {
   void connect() {
     if (_socket != null) return; // already initialised
 
-    _socket = IO.io(_serverUrl, <String, dynamic>{
+    _socket = IO.io(AppConfig.serverUrl, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
@@ -107,8 +106,8 @@ class SocketService {
     socket.on('game_start', callback);
   }
 
-  void onRoundStart(Function(dynamic) callback) {
-    socket.on('round_start', callback);
+  void onStartRound(Function(dynamic) callback) {
+    socket.on('start_round', callback);
   }
 
   void onRoundResult(Function(dynamic) callback) {
@@ -119,12 +118,8 @@ class SocketService {
     socket.on('game_over', callback);
   }
 
-  void onOpponentLeft(Function(dynamic) callback) {
-    socket.on('opponent_left', callback);
-  }
-
-  void onPlayerDisconnected(Function(dynamic) callback) {
-    socket.on('player_disconnected', callback);
+  void onOpponentDisconnected(Function(dynamic) callback) {
+    socket.on('opponent_disconnected', callback);
   }
 
   // ---------------------------------------------------------------------------
@@ -137,10 +132,9 @@ class SocketService {
     const events = [
       'match_found',
       'game_start',
-      'round_start',
+      'start_round',
       'round_result',
-      'opponent_left',
-      'player_disconnected',
+      'opponent_disconnected',
     ];
 
     for (final event in events) {
