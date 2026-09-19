@@ -1,10 +1,9 @@
-import 'dart:async';
-
 import 'package:math_multiplayer/config/app_config.dart';
 import 'package:math_multiplayer/models/game_state.dart';
 import 'package:math_multiplayer/services/socket_service.dart';
+import 'package:flutter/foundation.dart';
 
-class GameService {
+class GameService extends ChangeNotifier {
   static final GameService _instance = GameService._internal();
   factory GameService() => _instance;
   GameService._internal() {
@@ -14,30 +13,34 @@ class GameService {
 
   late final SocketService _socket;
   final GameState state = GameState();
-  final StreamController<GameState> _changes =
-      StreamController<GameState>.broadcast();
-  Stream<GameState> get changes => _changes.stream;
 
   void joinQueue() {
     state.reset();
     state.phase = GamePhase.waiting;
-    _emit();
+    notifyListeners();
     _socket.connect();
     Future.delayed(const Duration(milliseconds: 100), () {
-      if (_socket.isConnected && state.phase == GamePhase.waiting)
+      if (_socket.isConnected && state.phase == GamePhase.waiting) {
         _socket.joinQueue();
+      }
     });
   }
 
   void leaveQueue() {
     if (_socket.isConnected) _socket.leaveQueue();
     state.reset();
-    _emit();
+    notifyListeners();
   }
 
   void submitAnswer(int answer) {
     if (state.gameId == null || state.phase != GamePhase.answering) return;
     _socket.submitAnswer(state.gameId!, answer, state.currentRound);
+  }
+
+  void startAnswering() {
+    if (state.phase != GamePhase.flashing) return;
+    state.phase = GamePhase.answering;
+    notifyListeners();
   }
 
   void showPendingRound() {
@@ -62,7 +65,7 @@ class GameService {
       state.gameId = _int(data['gameId']);
       state.opponentId = data['player2']?.toString();
       state.phase = GamePhase.matched;
-      _emit();
+      notifyListeners();
     });
     _socket.onGameStart((data) {
       state.totalRounds = _int(data['totalRounds']) ?? 3;
@@ -70,14 +73,14 @@ class GameService {
       state.serverTimestamp =
           _int(data['timestamp']) ?? DateTime.now().millisecondsSinceEpoch;
       state.phase = GamePhase.countdown;
-      _emit();
+      notifyListeners();
     });
     _socket.onStartRound((data) {
       final payload = Map<String, dynamic>.from(data as Map);
       if (state.phase == GamePhase.roundResult) {
         state.pendingRound = payload;
         state.hasPendingRound = true;
-        _emit();
+        notifyListeners();
       } else {
         _applyRound(payload);
       }
@@ -106,7 +109,7 @@ class GameService {
       state.myScore = state.roundResult!.myScore;
       state.opponentScore = state.roundResult!.opponentScore;
       state.phase = GamePhase.roundResult;
-      _emit();
+      notifyListeners();
     });
     _socket.onGameOver((data) {
       final payload = Map<String, dynamic>.from(data as Map);
@@ -116,12 +119,12 @@ class GameService {
       } else {
         _applyGameOver(payload);
       }
-      _emit();
+      notifyListeners();
     });
     _socket.onOpponentDisconnected((_) {
       state.errorMessage = 'Your opponent disconnected.';
       state.phase = GamePhase.gameOver;
-      _emit();
+      notifyListeners();
     });
   }
 
@@ -136,7 +139,7 @@ class GameService {
         _int(data['duration']) ?? AppConfig.roundDurationSec;
     state.phase = GamePhase.flashing;
     state.roundResult = null;
-    _emit();
+    notifyListeners();
   }
 
   void _applyGameOver(Map<String, dynamic> data) {
@@ -146,7 +149,7 @@ class GameService {
     state.opponentScore = _otherValue(scores, me);
     state.winnerId = data['winner']?.toString();
     state.phase = GamePhase.gameOver;
-    _emit();
+    notifyListeners();
   }
 
   int _otherValue(Map<String, dynamic> values, String me) {
@@ -159,7 +162,4 @@ class GameService {
 
   int? _int(dynamic value) =>
       value is num ? value.toInt() : int.tryParse('$value');
-  void _emit() {
-    if (!_changes.isClosed) _changes.add(state);
-  }
 }

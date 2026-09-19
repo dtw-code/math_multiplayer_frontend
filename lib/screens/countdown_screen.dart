@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:math_multiplayer/models/game_state.dart';
 import 'package:math_multiplayer/services/game_service.dart';
-import 'flash_screen.dart';
+import 'package:provider/provider.dart';
 
-class CountdownScreen extends StatefulWidget {
-  const CountdownScreen({super.key});
+class CountdownView extends StatefulWidget {
+  const CountdownView({super.key});
+
   @override
-  State<CountdownScreen> createState() => _CountdownScreenState();
+  State<CountdownView> createState() => _CountdownViewState();
 }
 
-class _CountdownScreenState extends State<CountdownScreen> {
+class _CountdownViewState extends State<CountdownView> {
   Timer? _timer;
 
   @override
@@ -29,41 +29,22 @@ class _CountdownScreenState extends State<CountdownScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<GameState>(
-      stream: GameService().changes,
-      initialData: GameService().state,
-      builder: (context, snapshot) {
-        final state = snapshot.data!;
-        if (state.phase == GamePhase.flashing) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted)
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const FlashScreen()),
-              );
-          });
-        }
-        final elapsed =
-            (DateTime.now().millisecondsSinceEpoch - state.serverTimestamp) ~/
-            1000;
-        final remaining = (state.countdownSeconds - elapsed).clamp(
-          0,
-          state.countdownSeconds,
-        );
-        return Scaffold(
-          backgroundColor: const Color(0xFF101B20),
-          body: Center(
-            child: Text(
-              remaining == 0 ? 'GO' : '$remaining',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 96,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        );
-      },
+    final state = context.watch<GameService>().state;
+    final elapsed =
+        (DateTime.now().millisecondsSinceEpoch - state.serverTimestamp) ~/ 1000;
+    final remaining = (state.countdownSeconds - elapsed).clamp(
+      0,
+      state.countdownSeconds,
+    );
+    return Center(
+      child: Text(
+        remaining == 0 ? 'GO' : '$remaining',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 96,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }

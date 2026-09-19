@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:math_multiplayer/screens/auth_gate.dart';
 import 'package:math_multiplayer/services/socket_service.dart';
+import 'package:math_multiplayer/services/game_service.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -13,7 +15,9 @@ void main() async {
   // Connect to the game server
   SocketService().connect();
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (_) => GameService(), child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {

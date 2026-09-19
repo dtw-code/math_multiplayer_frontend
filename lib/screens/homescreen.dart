@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:math_multiplayer/services/auth_service.dart';
-import 'package:math_multiplayer/screens/loading_screen.dart';
 import 'package:math_multiplayer/services/game_service.dart';
+import 'package:math_multiplayer/screens/game_screen.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -90,12 +91,10 @@ class HomePage extends StatelessWidget {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(32),
                       onTap: () {
-                        GameService().joinQueue();
+                        context.read<GameService>().joinQueue();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoadingScreen(),
-                          ),
+                          MaterialPageRoute(builder: (_) => const GameScreen()),
                         );
                       },
                       child: Container(
@@ -187,9 +186,8 @@ class HomePage extends StatelessWidget {
   }
 }
 
-
 //in the homescreen when the flicker fomo is clicked, a screen with circular progree bar is displayed and a websocket request is created, which gets queued,
-//as soon as the match is found, and "match_found" message is received, the match screen is displayed, which displays opponenet id. The timer starts 2 second after "match_found" message is received. 
+//as soon as the match is found, and "match_found" message is received, the match screen is displayed, which displays opponenet id. The timer starts 2 second after "match_found" message is received.
 //The timer counts from 10 to 0 and the numbers are flashed at the center of the screen,timed in such a way that all numbers from the sequence are displayed at even time interval.
 //after the timer reaches zero, the input screen is displayed, where the user enters the value, and automatically after 5 seconds the formscreen disappears, and the match screen shows up again.
 //after 2 second delay, the no. flashes again and the process repeats. After the third round, the score page is displayed and the victory/defeat score screen is displayed accordingly.
