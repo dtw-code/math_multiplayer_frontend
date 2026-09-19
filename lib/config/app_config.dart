@@ -18,7 +18,7 @@ class AppConfig {
   static const int flashDurationSec = 10;
 
   /// Seconds given to type the answer (remaining portion).
-  static const int answerDurationSec = 2;
+  static const int answerDurationSec = 5;
 
-  static const int roundDurationSec = 12;
+  static const int roundDurationSec = 15;
 }
