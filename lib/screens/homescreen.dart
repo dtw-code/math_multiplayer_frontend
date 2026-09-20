@@ -42,7 +42,7 @@ class HomePage extends StatelessWidget {
                     child: const Text(
                       'BUNDLED IQ',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.red,
                         fontSize: 28,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.2,

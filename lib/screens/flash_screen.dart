@@ -14,21 +14,20 @@ class FlashNumbersView extends StatefulWidget {
 
 class _FlashNumbersViewState extends State<FlashNumbersView> {
   Timer? _timer;
-  int _elapsedMs = 0;
-
+  late int _secondsLeft;
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 50), (_) {
-      final service = context.read<GameService>();
-      final state = service.state;
-      if (!mounted || state.phase != GamePhase.flashing) return;
-      final elapsed =
-          DateTime.now().millisecondsSinceEpoch - state.serverTimestamp;
-      if (elapsed >= AppConfig.flashDurationSec * 1000) {
-        service.startAnswering();
+    _secondsLeft = AppConfig.flashDurationSec; // e.g. 10 seconds
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      if (_secondsLeft <= 1) {
+        timer.cancel();
+        context.read<GameService>().startAnswering();
       } else {
-        setState(() => _elapsedMs = elapsed);
+        setState(() {
+          _secondsLeft--;
+        });
       }
     });
   }
@@ -42,23 +41,22 @@ class _FlashNumbersViewState extends State<FlashNumbersView> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<GameService>().state;
-    final slotMs =
-        AppConfig.flashDurationSec *
-        1000 ~/
-        (state.numbers.isEmpty ? 1 : state.numbers.length);
-    final index = state.numbers.isEmpty
-        ? 0
-        : (_elapsedMs ~/ slotMs).clamp(0, state.numbers.length - 1);
-    final remaining = ((state.roundDurationSec * 1000 - _elapsedMs) / 1000)
-        .ceil()
-        .clamp(0, state.roundDurationSec);
+    // Calculate which number to show based on elapsed seconds
+    final elapsedSec = AppConfig.flashDurationSec - _secondsLeft;
+    final totalNumbers = state.numbers.isEmpty ? 1 : state.numbers.length;
+    final secPerNumber = AppConfig.flashDurationSec / totalNumbers;
+    final index = (elapsedSec / secPerNumber).floor().clamp(
+      0,
+      totalNumbers - 1,
+    );
+
     return SafeArea(
       child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              '$remaining',
+              '$_secondsLeft',
               style: const TextStyle(color: Color(0xFF81F1FB), fontSize: 28),
             ),
           ),
@@ -67,7 +65,7 @@ class _FlashNumbersViewState extends State<FlashNumbersView> {
               child: Text(
                 state.numbers.isEmpty ? '...' : '${state.numbers[index]}',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.red,
                   fontSize: 88,
                   fontWeight: FontWeight.bold,
                 ),

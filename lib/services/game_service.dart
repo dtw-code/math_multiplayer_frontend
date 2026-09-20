@@ -75,16 +75,14 @@ class GameService extends ChangeNotifier {
       state.phase = GamePhase.countdown;
       notifyListeners();
     });
+
     _socket.onStartRound((data) {
       final payload = Map<String, dynamic>.from(data as Map);
-      if (state.phase == GamePhase.roundResult) {
-        state.pendingRound = payload;
-        state.hasPendingRound = true;
-        notifyListeners();
-      } else {
-        _applyRound(payload);
-      }
+      _applyRound(
+        payload,
+      ); // Immediately start the round when the server says so!
     });
+
     _socket.onRoundResult((data) {
       final payload = Map<String, dynamic>.from(data as Map);
       final answers = Map<String, dynamic>.from(payload['answers'] ?? {});
@@ -111,6 +109,7 @@ class GameService extends ChangeNotifier {
       state.phase = GamePhase.roundResult;
       notifyListeners();
     });
+
     _socket.onGameOver((data) {
       final payload = Map<String, dynamic>.from(data as Map);
       if (state.phase == GamePhase.roundResult) {
@@ -121,6 +120,7 @@ class GameService extends ChangeNotifier {
       }
       notifyListeners();
     });
+
     _socket.onOpponentDisconnected((_) {
       state.errorMessage = 'Your opponent disconnected.';
       state.phase = GamePhase.gameOver;
