@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:math_multiplayer/config/app_config.dart';
 import 'package:math_multiplayer/models/game_state.dart';
 import 'package:math_multiplayer/services/game_service.dart';
@@ -15,6 +16,7 @@ class FlashNumbersView extends StatefulWidget {
 class _FlashNumbersViewState extends State<FlashNumbersView> {
   Timer? _timer;
   late int _secondsLeft;
+
   @override
   void initState() {
     super.initState();
@@ -50,34 +52,104 @@ class _FlashNumbersViewState extends State<FlashNumbersView> {
       totalNumbers - 1,
     );
 
+    // Format timer display string (e.g. 00:10)
+    final formattedTimer = '00:${_secondsLeft.toString().padLeft(2, '0')}';
+
     return SafeArea(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(
-              '$_secondsLeft',
-              style: const TextStyle(color: Color(0xFF81F1FB), fontSize: 28),
-            ),
-          ),
-          Expanded(
-            child: Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Column(
+          children: [
+            // Top Timer Container (170x84 proportional design)
+            Container(
+              width: 110,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF161111),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              alignment: Alignment.center,
               child: Text(
-                state.numbers.isEmpty ? '...' : '${state.numbers[index]}',
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 88,
+                formattedTimer,
+                style: GoogleFonts.intelOneMono(
+                  color: const Color(0xFF81F1FB),
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+
+            // Player Cards Row
+            Row(
+              children: [
+                Expanded(
+                  child: _PlayerCard(label: state.playerId ?? 'PLAYER 1'),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _PlayerCard(label: state.opponentId ?? 'PLAYER 2'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Central Main Container (623x1210 proportional design)
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF161111),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: Center(
+                  child: Text(
+                    state.numbers.isEmpty ? '...' : '${state.numbers[index]}',
+                    style: GoogleFonts.intelOneMono(
+                      color: const Color(0xFF6EDDFF),
+                      fontSize: 88,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlayerCard extends StatelessWidget {
+  final String label;
+
+  const _PlayerCard({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 90,
+      decoration: BoxDecoration(
+        color: const Color(0xFF161111),
+        borderRadius: BorderRadius.circular(28),
+      ),
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Text(
+          label.toUpperCase(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.intelOneMono(
+            color: Colors.white70,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.0,
           ),
-          Text(
-            'Round ${state.currentRound} / ${state.totalRounds}',
-            style: const TextStyle(color: Colors.white70),
-          ),
-          const SizedBox(height: 32),
-        ],
+        ),
       ),
     );
   }

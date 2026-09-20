@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:math_multiplayer/services/game_service.dart';
 import 'package:provider/provider.dart';
+// Note: Assuming GoogleFonts is imported if you want to use it for fallbacks,
+// but using standard TextStyle for 'Iosevka Charon Mono' as requested.
 
 class AnswerInputView extends StatefulWidget {
   const AnswerInputView({super.key});
@@ -58,45 +60,144 @@ class _AnswerInputViewState extends State<AnswerInputView> {
                 1000)
             .ceil()
             .clamp(0, state.roundDurationSec);
+
+    // Format timer display string (e.g. 00:10)
+    final formattedTimer = '00:${left.toString().padLeft(2, '0')}';
+
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          children: [
-            Text(
-              '$left',
-              style: const TextStyle(color: Color(0xFF81F1FB), fontSize: 32),
-            ),
-            const SizedBox(height: 60),
-            const Text(
-              'ANSWER',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                letterSpacing: 3,
+      child: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: AspectRatio(
+              // Using the 773x909 ratio from your Figma specs
+              aspectRatio: 773 / 909,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF161111),
+                  // Proportional corner radius based on your 76px spec
+                  borderRadius: BorderRadius.circular(40),
+                  border: Border.all(
+                    color: const Color(
+                      0xFF00A3FF,
+                    ), // Neon blue border from the image
+                    width: 3.0,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // ANSWER Title
+                    const Text(
+                      'ANSWER',
+                      style: TextStyle(
+                        fontFamily:
+                            'Iosevka Charon Mono', // Your specified font
+                        color: Colors.white,
+                        fontSize: 32,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Input Box (Proportional to 477x103)
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Container(
+                          width: constraints.maxWidth * (477 / 773),
+                          height: constraints.maxWidth * (103 / 773),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF261D1D),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextField(
+                            controller: _controller,
+                            enabled: !_submitted,
+                            keyboardType: TextInputType.number,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 24,
+                              fontFamily: 'Iosevka Charon Mono',
+                            ),
+                            textAlign: TextAlign.center,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
+                              hintText: '0.0',
+                              hintStyle: TextStyle(
+                                color: Colors.white30,
+                                fontSize: 24,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Timer Box (Proportional styling)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF261D1D),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        formattedTimer,
+                        style: const TextStyle(
+                          color: Color(0xFF81F1FB),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+
+                    // Added Custom Submit Button
+                    InkWell(
+                      onTap: _submitted ? null : _submit,
+                      borderRadius: BorderRadius.circular(16),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _submitted
+                              ? Colors.grey.withOpacity(0.1)
+                              : const Color(0xFF6EDDFF).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: _submitted
+                                ? Colors.grey.withOpacity(0.5)
+                                : const Color(0xFF6EDDFF),
+                            width: 2,
+                          ),
+                        ),
+                        child: Text(
+                          _submitted ? 'WAITING...' : 'SUBMIT',
+                          style: TextStyle(
+                            fontFamily: 'Iosevka Charon Mono',
+                            color: _submitted
+                                ? Colors.grey
+                                : const Color(0xFF6EDDFF),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 30),
-            TextField(
-              controller: _controller,
-              enabled: !_submitted,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white, fontSize: 28),
-              textAlign: TextAlign.center,
-              decoration: const InputDecoration(
-                filled: true,
-                fillColor: Color(0xFF334A4D),
-                border: OutlineInputBorder(),
-                hintText: 'Sum',
-                hintStyle: TextStyle(color: Colors.white54),
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _submitted ? null : _submit,
-              child: Text(_submitted ? 'WAITING...' : 'SUBMIT'),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -1,99 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:math_multiplayer/services/game_service.dart';
+import 'package:provider/provider.dart';
 
-class DefeatScreen extends StatelessWidget {
-  const DefeatScreen({
-    super.key,
-    required this.myScore,
-    required this.opponentScore,
-  });
-  final int myScore;
-  final int opponentScore;
+class DefeatView extends StatelessWidget {
+  final int? myScore;
+  final int? opponentScore;
+
+  const DefeatView({super.key, this.myScore, this.opponentScore});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        // The background is an image from 'images/background.png'
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/background.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Center(
-          child: Container(
-            width: 320, // Re-using width and height specs
-            height: 380,
-            decoration: BoxDecoration(
-              color: const Color(0xFF101B20), // Dark background from image
-              // The outer box has a corner radius of 76 px
-              borderRadius: BorderRadius.circular(76),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // 'defeat' is colored with CC3F42 (hex)
-                Text(
-                  'DEFEAT',
-                  style: GoogleFonts.shareTechMono(
-                    color: const Color(0xFFCC3F42),
-                    fontSize: 42,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-                const SizedBox(height: 40),
+    // Read state from GameService (with fallbacks for constructor props)
+    final state = context.watch<GameService>().state;
+    final finalMyScore = myScore ?? state.myScore;
+    final finalOpponentScore = opponentScore ?? state.opponentScore;
+    final opponentName = state.opponentId ?? 'BOT';
 
-                // Score Cards Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildScoreCard(title: 'YOU', score: '$myScore'),
-                    _buildScoreCard(title: 'OPPONENT', score: '$opponentScore'),
-                  ],
+    return Center(
+      child: Container(
+        width: 320,
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+        decoration: BoxDecoration(
+          color: const Color(
+            0xFF0E1A1E,
+          ), // Dark slate container matching mockup
+          borderRadius: BorderRadius.circular(48),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // DEFEAT Title
+            Text(
+              'DEFEAT',
+              style: GoogleFonts.shareTechMono(
+                color: const Color(0xFFCC3F42), // Crimson / Coral Red
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 3.0,
+              ),
+            ),
+            const SizedBox(height: 36),
+
+            // Score Cards Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildScoreCard(
+                  title: 'YOU',
+                  score: '$finalMyScore',
+                  scoreColor: const Color(0xFFCC3F42),
                 ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () =>
-                      Navigator.popUntil(context, (route) => route.isFirst),
-                  child: const Text('BACK TO HOME'),
+                _buildScoreCard(
+                  title: opponentName.toUpperCase(),
+                  score: '$finalOpponentScore',
+                  scoreColor: const Color(0xFFCC3F42),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 36),
+
+            // Action Button
+            InkWell(
+              onTap: () =>
+                  Navigator.popUntil(context, (route) => route.isFirst),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF25363C),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFCC3F42).withOpacity(0.5),
+                    width: 1.5,
+                  ),
+                ),
+                child: Text(
+                  'BACK TO HOME',
+                  style: GoogleFonts.shareTechMono(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildScoreCard({required String title, required String score}) {
+  // Reusable widget for score cards
+  Widget _buildScoreCard({
+    required String title,
+    required String score,
+    required Color scoreColor,
+  }) {
     return Container(
-      width: 100,
-      height: 120,
+      width: 108,
+      height: 124,
       decoration: BoxDecoration(
-        color: const Color(0xFF334A4D), // Inner box color from image
-        // the inner small box has a radius of around 30 px
-        borderRadius: BorderRadius.circular(30),
+        color: const Color(0xFF25363C), // Inner slate card background
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Labels use standard dark color for readability
           Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.shareTechMono(
-              color: Colors.black87,
-              fontSize: 18,
+              color: const Color(0xFF101B20), // Dark text label matching mockup
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
-          // color of number is 651C1D
+          const SizedBox(height: 6),
           Text(
             score,
             style: GoogleFonts.shareTechMono(
-              color: const Color(0xFF651C1D),
-              fontSize: 32,
+              color: scoreColor,
+              fontSize: 36,
               fontWeight: FontWeight.bold,
             ),
           ),
