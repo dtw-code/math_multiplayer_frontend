@@ -14,20 +14,20 @@ class GameService extends ChangeNotifier {
   late final SocketService _socket;
   final GameState state = GameState();
 
-  void joinQueue() {
+  void joinQueue({String gameType = 'flash_number'}) {
     state.reset();
     state.phase = GamePhase.waiting;
     notifyListeners();
     _socket.connect();
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_socket.isConnected && state.phase == GamePhase.waiting) {
-        _socket.joinQueue();
+        _socket.joinQueue(gameType: gameType);
       }
     });
   }
 
-  void leaveQueue() {
-    if (_socket.isConnected) _socket.leaveQueue();
+  void leaveQueue({String gameType = 'flash_number'}) {
+    if (_socket.isConnected) _socket.leaveQueue(gameType: gameType);
     state.reset();
     notifyListeners();
   }

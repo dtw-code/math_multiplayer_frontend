@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:math_multiplayer/services/game_service.dart';
+import 'package:math_multiplayer/services/flash_game_service.dart';
 import 'package:provider/provider.dart';
 
 class CountdownView extends StatefulWidget {
-  const CountdownView({super.key});
+  final int? countdownSeconds;
+  final VoidCallback? onCancel;
+
+  const CountdownView({super.key, this.countdownSeconds, this.onCancel});
 
   @override
   State<CountdownView> createState() => _CountdownViewState();
@@ -31,8 +34,10 @@ class _CountdownViewState extends State<CountdownView> {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<GameService>().state;
-    final totalDurationMs = state.countdownSeconds * 1000;
+    final int countdownSec =
+        widget.countdownSeconds ??
+        context.watch<GameService>().state.countdownSeconds;
+    final totalDurationMs = countdownSec * 1000;
     final elapsedMs = DateTime.now().millisecondsSinceEpoch - _localStartTime;
     final remainingMs = (totalDurationMs - elapsedMs).clamp(0, totalDurationMs);
     final remainingSec = (remainingMs / 1000).ceil();
@@ -64,8 +69,12 @@ class _CountdownViewState extends State<CountdownView> {
           const SizedBox(height: 36),
           TextButton(
             onPressed: () {
-              context.read<GameService>().leaveQueue();
-              Navigator.pop(context);
+              if (widget.onCancel != null) {
+                widget.onCancel!();
+              } else {
+                context.read<GameService>().leaveQueue();
+                Navigator.pop(context);
+              }
             },
             style: TextButton.styleFrom(
               foregroundColor: Colors.white70,

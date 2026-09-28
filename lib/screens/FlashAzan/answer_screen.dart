@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:math_multiplayer/services/game_service.dart';
+import 'package:math_multiplayer/services/flash_game_service.dart';
 import 'package:provider/provider.dart';
 // Note: Assuming GoogleFonts is imported if you want to use it for fallbacks,
 // but using standard TextStyle for 'Iosevka Charon Mono' as requested.

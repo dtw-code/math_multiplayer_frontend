@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:math_multiplayer/services/game_service.dart';
+import 'package:math_multiplayer/services/flash_game_service.dart';
 import 'package:provider/provider.dart';
 
 class RoundResultView extends StatefulWidget {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:math_multiplayer/screens/auth_gate.dart';
+import 'package:math_multiplayer/screens/Authfiles/auth_gate.dart';
 import 'package:math_multiplayer/services/socket_service.dart';
-import 'package:math_multiplayer/services/game_service.dart';
+import 'package:math_multiplayer/services/flash_game_service.dart';
+import 'package:math_multiplayer/services/sudoku_game_service.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -16,7 +17,13 @@ void main() async {
   SocketService().connect();
 
   runApp(
-    ChangeNotifierProvider(create: (_) => GameService(), child: const MyApp()),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => GameService()),
+        ChangeNotifierProvider(create: (_) => SudokuGameService()),
+      ],
+      child: const MyApp(),
+    ),
   );
 }
 

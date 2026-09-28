@@ -75,23 +75,49 @@ class SocketService {
   // Client → Server events
   // ---------------------------------------------------------------------------
 
-  /// Tell the server we want to join the matchmaking queue.
-  void joinQueue() {
-    socket.emit('join_queue');
+  /// Tell the server we want to join the matchmaking queue for a specific game type.
+  void joinQueue({String gameType = 'flash_number'}) {
+    socket.emit('join_queue', {'gameType': gameType});
   }
 
   /// Tell the server we want to leave the matchmaking queue.
-  void leaveQueue() {
-    socket.emit('leave_queue');
+  void leaveQueue({String? gameType}) {
+    if (gameType != null) {
+      socket.emit('leave_queue', {'gameType': gameType});
+    } else {
+      socket.emit('leave_queue');
+    }
   }
 
-  /// Submit the player's answer for the current round.
+  /// Submit the player's answer for the current round (Flash Numbers).
   void submitAnswer(int gameId, int answer, int round) {
     socket.emit('submit_answer', {
       'gameId': gameId,
       'answer': answer,
       'round': round,
     });
+  }
+
+  /// Submit a cell value change for Sudoku.
+  void submitCell({
+    required int gameId,
+    required int round,
+    required int row,
+    required int col,
+    required int value,
+  }) {
+    socket.emit('submit_cell', {
+      'gameId': gameId,
+      'round': round,
+      'row': row,
+      'col': col,
+      'value': value,
+    });
+  }
+
+  /// Submit a completed puzzle solution for Sudoku.
+  void submitPuzzle({required int gameId, required dynamic puzzle}) {
+    socket.emit('submit_puzzle', {'gameId': gameId, 'puzzle': puzzle});
   }
 
   // ---------------------------------------------------------------------------
@@ -114,6 +140,22 @@ class SocketService {
     socket.on('round_result', callback);
   }
 
+  void onScoreUpdate(Function(dynamic) callback) {
+    socket.on('score_update', callback);
+  }
+
+  void onPuzzleCompleted(Function(dynamic) callback) {
+    socket.on('puzzle_completed', callback);
+  }
+
+  void onPuzzleWrong(Function(dynamic) callback) {
+    socket.on('puzzle_wrong', callback);
+  }
+
+  void onOvertime(Function(dynamic) callback) {
+    socket.on('overtime', callback);
+  }
+
   void onGameOver(Function(dynamic) callback) {
     socket.on('game_over', callback);
   }
@@ -134,6 +176,11 @@ class SocketService {
       'game_start',
       'start_round',
       'round_result',
+      'score_update',
+      'puzzle_completed',
+      'puzzle_wrong',
+      'overtime',
+      'game_over',
       'opponent_disconnected',
     ];
 

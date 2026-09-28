@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:math_multiplayer/screens/homescreen.dart';
-import 'package:math_multiplayer/screens/auth_screen.dart';
+import 'package:math_multiplayer/screens/Authfiles/auth_screen.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../utils/validators.dart';
-import '../widgets/custom_text_field.dart';
-import '../services/auth_service.dart';
+import '../../utils/validators.dart';
+import '../../widgets/custom_text_field.dart';
+import '../../services/auth_service.dart';
 
 class SignUpBox extends StatefulWidget {
   final VoidCallback onSwitchToLogin;

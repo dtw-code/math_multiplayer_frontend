@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:math_multiplayer/screens/Sudoku/sudoku_main.dart';
 import 'package:math_multiplayer/services/auth_service.dart';
-import 'package:math_multiplayer/services/game_service.dart';
-import 'package:math_multiplayer/screens/game_screen.dart';
+import 'package:math_multiplayer/services/flash_game_service.dart';
+import 'package:math_multiplayer/services/sudoku_game_service.dart';
+import 'package:math_multiplayer/screens/FlashAzan/game_screen.dart';
+
 import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
@@ -76,7 +79,13 @@ class HomePage extends StatelessWidget {
                         icon: Icons.colorize,
                         color: const Color(0xFF6B1B1A),
                         onTap: () {
-                          print("Sword icon tapped");
+                          context.read<SudokuGameService>().joinQueue();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SudokuScreen(),
+                            ),
+                          );
                         },
                       ),
                     ],

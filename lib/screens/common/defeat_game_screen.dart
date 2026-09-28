@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:math_multiplayer/services/game_service.dart';
+import 'package:math_multiplayer/services/flash_game_service.dart';
 import 'package:provider/provider.dart';
 
 class DefeatView extends StatelessWidget {
   final int? myScore;
   final int? opponentScore;
+  final String? opponentName;
+  final VoidCallback? onHome;
 
-  const DefeatView({super.key, this.myScore, this.opponentScore});
+  const DefeatView({
+    super.key,
+    this.myScore,
+    this.opponentScore,
+    this.opponentName,
+    this.onHome,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Read state from GameService (with fallbacks for constructor props)
-    final state = context.watch<GameService>().state;
-    final finalMyScore = myScore ?? state.myScore;
-    final finalOpponentScore = opponentScore ?? state.opponentScore;
-    final opponentName = state.opponentId ?? 'BOT';
+    // Read state from GameService only if constructor props aren't provided
+    final hasProps = myScore != null && opponentScore != null;
+    final flashState = hasProps ? null : context.watch<GameService>().state;
+    final finalMyScore = myScore ?? flashState?.myScore ?? 0;
+    final finalOpponentScore = opponentScore ?? flashState?.opponentScore ?? 0;
+    final finalOpponentName = opponentName ?? flashState?.opponentId ?? 'BOT';
 
     return Center(
       child: Container(
@@ -53,7 +62,7 @@ class DefeatView extends StatelessWidget {
                   scoreColor: const Color(0xFFCC3F42),
                 ),
                 _buildScoreCard(
-                  title: opponentName.toUpperCase(),
+                  title: finalOpponentName.toUpperCase(),
                   score: '$finalOpponentScore',
                   scoreColor: const Color(0xFFCC3F42),
                 ),
@@ -63,8 +72,9 @@ class DefeatView extends StatelessWidget {
 
             // Action Button
             InkWell(
-              onTap: () =>
-                  Navigator.popUntil(context, (route) => route.isFirst),
+              onTap:
+                  onHome ??
+                  () => Navigator.popUntil(context, (route) => route.isFirst),
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -106,7 +116,7 @@ class DefeatView extends StatelessWidget {
       width: 108,
       height: 124,
       decoration: BoxDecoration(
-        color: const Color(0xFF25363C), // Inner slate card background
+        color: const Color(0xFF25363C), // Inner slate card
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(

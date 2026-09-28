@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:math_multiplayer/models/game_state.dart';
-import 'package:math_multiplayer/services/game_service.dart';
+import 'package:math_multiplayer/services/flash_game_service.dart';
 import 'package:provider/provider.dart';
 
 import 'answer_screen.dart';
-import 'countdown_screen.dart';
-import 'defeat_game_screen.dart'; // Import your custom Defeat view file
+import '../common/countdown_screen.dart';
+import '../common/defeat_game_screen.dart'; // Import your custom Defeat view file
 import 'flash_screen.dart';
-import 'loading_screen.dart';
-import 'round_result_screen.dart';
-import 'victory_game_screen.dart'; // Import your custom Victory view file
+import '../common/loading_screen.dart';
+import '../common/round_result_screen.dart';
+import '../common/victory_game_screen.dart'; // Import your custom Victory view file
+import '../common/game_over_fallback.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
@@ -98,63 +99,6 @@ class BackgroundSpaceContainer extends StatelessWidget {
           image: AssetImage('images/background.png'),
           fit: BoxFit.cover,
         ),
-      ),
-    );
-  }
-}
-
-/// Fallback view for Draw / Disconnected scenarios
-class GameOverFallbackView extends StatelessWidget {
-  final bool isDraw;
-  final String? errorMessage;
-  final int myScore;
-  final int opponentScore;
-
-  const GameOverFallbackView({
-    super.key,
-    required this.isDraw,
-    this.errorMessage,
-    required this.myScore,
-    required this.opponentScore,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final title = isDraw ? 'DRAW' : 'DISCONNECTED';
-
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: 'Iosevka Charon Mono',
-              color: Color(0xFF81F1FB),
-              fontSize: 42,
-              letterSpacing: 2,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (errorMessage != null) ...[
-            const SizedBox(height: 20),
-            Text(errorMessage!, style: const TextStyle(color: Colors.white70)),
-          ],
-          const SizedBox(height: 32),
-          Text(
-            'YOU  $myScore   -   $opponentScore  OPPONENT',
-            style: const TextStyle(
-              fontFamily: 'Iosevka Charon Mono',
-              color: Colors.white,
-              fontSize: 18,
-            ),
-          ),
-          const SizedBox(height: 40),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('BACK TO HOME'),
-          ),
-        ],
       ),
     );
   }

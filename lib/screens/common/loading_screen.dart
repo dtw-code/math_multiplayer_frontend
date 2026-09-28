@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:math_multiplayer/models/game_state.dart';
-import 'package:math_multiplayer/services/game_service.dart';
+import 'package:math_multiplayer/services/flash_game_service.dart';
 import 'package:provider/provider.dart';
 
 class WaitingView extends StatelessWidget {
-  const WaitingView({super.key});
+  final bool? isMatched;
+  final VoidCallback? onCancel;
+
+  const WaitingView({super.key, this.isMatched, this.onCancel});
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<GameService>().state;
+    final bool matched;
+    if (isMatched != null) {
+      matched = isMatched!;
+    } else {
+      matched = context.watch<GameService>().state.phase == GamePhase.matched;
+    }
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -16,16 +25,18 @@ class WaitingView extends StatelessWidget {
           const CircularProgressIndicator(color: Color(0xFF81F1FB)),
           const SizedBox(height: 24),
           Text(
-            state.phase == GamePhase.matched
-                ? 'Opponent found'
-                : 'Finding Opponent...',
+            matched ? 'Opponent found' : 'Finding Opponent...',
             style: const TextStyle(color: Colors.white, fontSize: 22),
           ),
           const SizedBox(height: 16),
           TextButton(
             onPressed: () {
-              context.read<GameService>().leaveQueue();
-              Navigator.pop(context);
+              if (onCancel != null) {
+                onCancel!();
+              } else {
+                context.read<GameService>().leaveQueue();
+                Navigator.pop(context);
+              }
             },
             child: const Text('CANCEL'),
           ),
