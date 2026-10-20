@@ -6,6 +6,7 @@ class SudokuBoard extends StatelessWidget {
   final int? selectedRow;
   final int? selectedCol;
   final int? highlightedNumber;
+  final Set<(int, int)> conflictCells;
   final Function(int, int) onCellTapped;
 
   const SudokuBoard({
@@ -14,6 +15,7 @@ class SudokuBoard extends StatelessWidget {
     this.selectedRow,
     this.selectedCol,
     this.highlightedNumber,
+    this.conflictCells = const {},
     required this.onCellTapped,
   }) : super(key: key);
 
@@ -40,9 +42,15 @@ class SudokuBoard extends StatelessWidget {
               children: List.generate(6, (col) {
                 bool isSelected = selectedRow == row && selectedCol == col;
                 bool isRelated = selectedRow == row || selectedCol == col;
-                bool isSameNumber = false;
-                // highlightedNumber != null &&
-                // grid[row][col] == highlightedNumber;
+                bool isInSameBlock = selectedRow != null && selectedCol != null &&
+                    (row ~/ 2) == (selectedRow! ~/ 2) &&
+                    (col ~/ 3) == (selectedCol! ~/ 3);
+                bool isConflict = conflictCells.contains((row, col));
+                bool isSameNumber =
+                    highlightedNumber != null &&
+                    grid[row][col] == highlightedNumber &&
+                    !isConflict &&
+                    (isRelated || isInSameBlock);
 
                 // Thicker borders for the 3x2 blocks
                 bool bottomThick = (row == 1 || row == 3 || row == 5);
@@ -56,6 +64,7 @@ class SudokuBoard extends StatelessWidget {
                     isSelected: isSelected,
                     isRelated: isRelated,
                     isSameNumber: isSameNumber,
+                    isConflict: isConflict,
                     bottomThick: bottomThick,
                     rightThick: rightThick,
                     onTap: () => onCellTapped(row, col),

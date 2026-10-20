@@ -89,10 +89,16 @@ class _SudokuScreenState extends State<SudokuScreen> {
     if (_isLocked(row, col)) return;
 
     setState(() {
-      selectedRow = row;
-      selectedCol = col;
-      final val = grid[row][col];
-      highlightedNumber = (val != 0) ? val : null;
+      if (selectedRow == row && selectedCol == col) {
+        // Double-tap: clear the cell
+        grid[row][col] = 0;
+        highlightedNumber = null;
+      } else {
+        selectedRow = row;
+        selectedCol = col;
+        final val = grid[row][col];
+        highlightedNumber = (val != 0) ? val : null;
+      }
     });
   }
 
@@ -274,7 +280,7 @@ class _SudokuScreenState extends State<SudokuScreen> {
                       style: TextStyle(
                         color: Colors.red,
                         fontFamily: 'Inria Sans',
-                        fontSize: 30,
+                        fontSize: 15,
                       ),
                     ),
                   ),
@@ -284,6 +290,7 @@ class _SudokuScreenState extends State<SudokuScreen> {
                     selectedRow: selectedRow,
                     selectedCol: selectedCol,
                     highlightedNumber: highlightedNumber,
+                    conflictCells: SudokuValidator.findConflicts(_gridAsNullable),
                     onCellTapped: onCellTapped,
                   ),
                   // Number Input Pad
